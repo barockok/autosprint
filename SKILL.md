@@ -188,6 +188,9 @@ If a session is interrupted, the orchestrator resumes from `state.json` on next 
 /brainstorm → /write-plan → /autosprint → /simplify → /finish-branch
 ```
 
+**Skill dependencies:**
+- `frontend-design` — REQUIRED by UI agent for Phase 1 design spec generation. Install via `/plugin` or ensure `frontend-design` skill is available.
+
 **Agent prompt files:**
 - `agents/dev-agent.md`
 - `agents/qa-agent.md`

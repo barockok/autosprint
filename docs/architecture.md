@@ -68,6 +68,10 @@ All output is standard GitHub-Flavored Markdown — renders natively in Claude C
 
 TPM never fails because it can't reach a higher level — reports as recommendation.
 
+## Skill Dependencies
+
+- **`frontend-design`** — UI agent invokes this skill during Phase 1 to produce distinctive, production-grade design specs. Ensures design output avoids generic AI aesthetics and commits to a bold aesthetic direction.
+
 ## Key Decisions
 
 1. **Agent tool over Agent Teams** — stability over experimental features

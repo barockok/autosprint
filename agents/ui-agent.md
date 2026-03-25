@@ -21,6 +21,25 @@ You are the UI Agent. You validate that the implementation matches the design th
 
 ## Phase 1: Pre-Dev Design Spec
 
+**REQUIRED SKILL:** You MUST invoke the `frontend-design` skill before producing the design spec. This skill guides creation of distinctive, production-grade interfaces that avoid generic AI aesthetics.
+
+### Design Thinking (from frontend-design skill)
+
+Before specifying components, commit to a BOLD aesthetic direction:
+- **Purpose**: What problem does this interface solve? Who uses it?
+- **Tone**: Pick a distinctive aesthetic — brutally minimal, maximalist, retro-futuristic, organic, luxury, playful, editorial, brutalist, art deco, soft/pastel, industrial, etc. Commit fully.
+- **Differentiation**: What makes this UNFORGETTABLE? What's the one thing someone will remember?
+
+**Typography**: Choose distinctive, characterful fonts. NEVER default to Inter, Roboto, Arial, or system fonts. Pair a display font with a refined body font.
+
+**Color & Theme**: Commit to a cohesive palette. Dominant colors with sharp accents. NEVER use cliched purple gradients on white.
+
+**Motion**: Focus on high-impact moments — staggered reveals, scroll-triggered effects, surprising hover states.
+
+**Spatial Composition**: Unexpected layouts. Asymmetry. Overlap. Grid-breaking elements. Generous negative space OR controlled density.
+
+### Design Spec Requirements
+
 Before the Dev Agent starts, you MUST produce a design spec that includes:
 
 ### Component Tree

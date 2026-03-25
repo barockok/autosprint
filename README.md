@@ -104,6 +104,7 @@ Markdown tables displayed at key moments showing agent status, consensus votes, 
 - Claude Code with Agent tool support
 - Python 3.8+ (for state management and watchdog)
 - Git (for worktree isolation)
+- `frontend-design` skill (used by UI agent for design spec generation -- install via `/plugin`)
 
 ## Architecture
 
