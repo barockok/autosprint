@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 
 AGENTS = ["dev", "qa", "ui", "security", "tpm"]
 REVIEWERS = ["qa", "ui", "security", "tpm"]
+VALID_STATUSES = {"pending", "running", "completed", "TIMEOUT"}
 VALID_VOTES = {"PASS", "FAIL", "OVERRIDE"}
 
 AGENT_DISPLAY = {
@@ -44,6 +45,10 @@ def _write_json(path, data):
 def _locked_update(project_dir, mutator_fn):
     """Read state.json, apply mutator_fn, write back — all under exclusive file lock."""
     path = _state_path(project_dir)
+    if not os.path.isfile(path):
+        raise FileNotFoundError(
+            f"state.json not found at {path}. Run init_sprint() first."
+        )
     with open(str(path), "r+") as f:
         fcntl.flock(f, fcntl.LOCK_EX)
         try:
@@ -126,6 +131,8 @@ def update_agent_status(project_dir, agent, status, phase=None):
     """Update agent status and lastActivity timestamp."""
     if agent not in AGENTS:
         raise ValueError(f"Unknown agent: {agent}")
+    if status not in VALID_STATUSES:
+        raise ValueError(f"Invalid status: {status}")
 
     def _mutate(data):
         data["agents"][agent]["status"] = status

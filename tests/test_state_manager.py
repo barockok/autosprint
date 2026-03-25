@@ -11,6 +11,7 @@ from lib import state_manager
 from lib.state_manager import (
     AGENTS,
     REVIEWERS,
+    VALID_STATUSES,
     VALID_VOTES,
     _locked_update,
     check_consensus,
@@ -203,6 +204,10 @@ class TestInputValidation:
     def test_record_vote_invalid_vote(self, initialized_project):
         with pytest.raises(ValueError, match="Invalid vote: MAYBE"):
             record_vote(initialized_project, 1, "qa", "MAYBE", "ok")
+
+    def test_update_agent_status_invalid_status(self, initialized_project):
+        with pytest.raises(ValueError, match="Invalid status: exploded"):
+            update_agent_status(initialized_project, "dev", "exploded")
 
     def test_get_state_missing_file(self, project):
         with pytest.raises(FileNotFoundError, match="state.json not found"):
