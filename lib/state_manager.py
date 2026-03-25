@@ -175,6 +175,100 @@ def record_vote(project_dir, round_num, agent, vote, summary):
     _write_json(report_path, report)
 
 
+def record_tokens(project_dir, round_num, agent, tokens):
+    """Record token usage for an agent in a round."""
+    if agent not in AGENTS:
+        raise ValueError(f"Unknown agent: {agent}")
+    tokens = int(tokens)
+
+    round_key = f"round-{round_num}"
+
+    def _mutate(data):
+        if "tokens" not in data:
+            data["tokens"] = {}
+        if round_key not in data["tokens"]:
+            data["tokens"][round_key] = {}
+        data["tokens"][round_key][agent] = tokens
+
+    _locked_update(project_dir, _mutate)
+
+
+def get_token_summary(project_dir):
+    """Get token usage summary across all rounds.
+
+    Returns dict with:
+        - rounds: {round-N: {agent: tokens, ...}, ...}
+        - round_totals: {round-N: total, ...}
+        - agent_totals: {agent: total_across_rounds, ...}
+        - grand_total: int
+    """
+    state = get_state(project_dir)
+    token_data = state.get("tokens", {})
+
+    round_totals = {}
+    agent_totals = {}
+    grand_total = 0
+
+    for round_key, agents in token_data.items():
+        round_sum = 0
+        for agent, count in agents.items():
+            round_sum += count
+            agent_totals[agent] = agent_totals.get(agent, 0) + count
+        round_totals[round_key] = round_sum
+        grand_total += round_sum
+
+    return {
+        "rounds": token_data,
+        "round_totals": round_totals,
+        "agent_totals": agent_totals,
+        "grand_total": grand_total,
+    }
+
+
+def render_token_summary(project_dir):
+    """Render token usage summary as markdown."""
+    summary = get_token_summary(project_dir)
+    state = get_state(project_dir)
+
+    lines = []
+    lines.append(f"## Token Usage: {state['feature']}")
+    lines.append("")
+
+    # Per-round breakdown
+    if summary["rounds"]:
+        lines.append("### Per Round")
+        lines.append("")
+        lines.append("| Round | Agent | Tokens |")
+        lines.append("| --- | --- | --- |")
+
+        for round_key in sorted(summary["rounds"].keys()):
+            agents = summary["rounds"][round_key]
+            for agent in sorted(agents.keys()):
+                display = AGENT_DISPLAY.get(agent, agent)
+                tokens = agents[agent]
+                lines.append(f"| {round_key} | {display} | {tokens:,} |")
+            # Round subtotal
+            lines.append(f"| **{round_key} total** | | **{summary['round_totals'][round_key]:,}** |")
+
+        lines.append("")
+
+    # Agent totals
+    if summary["agent_totals"]:
+        lines.append("### Per Agent (all rounds)")
+        lines.append("")
+        lines.append("| Agent | Total Tokens |")
+        lines.append("| --- | --- |")
+        for agent in sorted(summary["agent_totals"].keys()):
+            display = AGENT_DISPLAY.get(agent, agent)
+            lines.append(f"| {display} | {summary['agent_totals'][agent]:,} |")
+        lines.append("")
+
+    # Grand total
+    lines.append(f"**Grand Total: {summary['grand_total']:,} tokens**")
+
+    return "\n".join(lines)
+
+
 def check_consensus(project_dir, round_num):
     """Check consensus for a round. Returns APPROVED, REJECTED, or PENDING."""
     state = get_state(project_dir)

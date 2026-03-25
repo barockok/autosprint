@@ -243,16 +243,18 @@ After Dev completes, **automatically select which reviewers are needed** based o
    - Load prompt from `SKILL_DIR/agents/tpm-agent.md`
    - Only reads README.md and runs commands in it
 
-3. **As each agent completes**, record their vote and update kanban:
+3. **As each agent completes**, record their vote, token usage, and update kanban:
    ```bash
    python3 -c "
    import sys; sys.path.insert(0, 'SKILL_DIR')
-   from lib.state_manager import update_agent_status, record_vote, render_kanban
+   from lib.state_manager import update_agent_status, record_vote, record_tokens, render_kanban
    update_agent_status('PROJECT_DIR', 'AGENT_NAME', 'completed')
    record_vote('PROJECT_DIR', ROUND_NUM, 'AGENT_NAME', 'VOTE', 'SUMMARY')
+   record_tokens('PROJECT_DIR', ROUND_NUM, 'AGENT_NAME', TOKEN_COUNT)
    print(render_kanban('PROJECT_DIR'))
    "
    ```
+   **TOKEN_COUNT** = the `total_tokens` value from the Agent tool result (visible in the agent's response metadata). Record it for every agent including Dev.
    **Output the markdown table to the user after EACH agent completes.**
 
 ### Step 5: Consensus Gate
@@ -297,12 +299,22 @@ After Dev completes, **automatically select which reviewers are needed** based o
    "
    ```
    **Output the markdown table to the user.**
-4. **Present summary** to the user:
+4. **Display token usage summary:**
+   ```bash
+   python3 -c "
+   import sys; sys.path.insert(0, 'SKILL_DIR')
+   from lib.state_manager import render_token_summary
+   print(render_token_summary('PROJECT_DIR'))
+   "
+   ```
+   **Output the token summary table to the user.** This shows per-round breakdown, per-agent totals, and grand total.
+5. **Present summary** to the user:
    - Slices completed
    - Total rounds used per slice
    - Consensus votes per agent
+   - Token usage (from step 4)
    - Any outstanding warnings
-5. Clean up: kill the watchdog background process.
+6. Clean up: kill the watchdog background process.
 
 ## Kanban Display Rules
 

@@ -17,10 +17,13 @@ from lib.state_manager import (
     check_consensus,
     get_state,
     init_sprint,
+    record_tokens,
     record_vote,
     render_consensus,
     render_kanban,
     render_overview,
+    render_token_summary,
+    get_token_summary,
     update_agent_status,
 )
 
@@ -235,3 +238,70 @@ class TestFileLocking:
         state = get_state(initialized_project)
         assert state["phase"] == "consensus"
         assert state["agents"]["dev"]["status"] == "running"
+
+
+class TestTokenTracking:
+    def test_record_tokens(self, initialized_project):
+        record_tokens(initialized_project, 1, "dev", 50000)
+        state = get_state(initialized_project)
+        assert state["tokens"]["round-1"]["dev"] == 50000
+
+    def test_record_tokens_multiple_agents(self, initialized_project):
+        record_tokens(initialized_project, 1, "dev", 50000)
+        record_tokens(initialized_project, 1, "qa", 103000)
+        record_tokens(initialized_project, 1, "ui", 95000)
+        state = get_state(initialized_project)
+        assert state["tokens"]["round-1"]["dev"] == 50000
+        assert state["tokens"]["round-1"]["qa"] == 103000
+        assert state["tokens"]["round-1"]["ui"] == 95000
+
+    def test_record_tokens_multiple_rounds(self, initialized_project):
+        record_tokens(initialized_project, 1, "dev", 50000)
+        record_tokens(initialized_project, 2, "dev", 30000)
+        state = get_state(initialized_project)
+        assert state["tokens"]["round-1"]["dev"] == 50000
+        assert state["tokens"]["round-2"]["dev"] == 30000
+
+    def test_record_tokens_invalid_agent(self, initialized_project):
+        with pytest.raises(ValueError, match="Unknown agent"):
+            record_tokens(initialized_project, 1, "hacker", 100)
+
+    def test_get_token_summary(self, initialized_project):
+        record_tokens(initialized_project, 1, "dev", 50000)
+        record_tokens(initialized_project, 1, "qa", 103000)
+        record_tokens(initialized_project, 1, "security", 98000)
+        record_tokens(initialized_project, 2, "dev", 30000)
+        record_tokens(initialized_project, 2, "qa", 60000)
+
+        summary = get_token_summary(initialized_project)
+        assert summary["round_totals"]["round-1"] == 251000
+        assert summary["round_totals"]["round-2"] == 90000
+        assert summary["agent_totals"]["dev"] == 80000
+        assert summary["agent_totals"]["qa"] == 163000
+        assert summary["grand_total"] == 341000
+
+    def test_get_token_summary_empty(self, initialized_project):
+        summary = get_token_summary(initialized_project)
+        assert summary["grand_total"] == 0
+        assert summary["rounds"] == {}
+
+    def test_render_token_summary(self, initialized_project):
+        record_tokens(initialized_project, 1, "dev", 50000)
+        record_tokens(initialized_project, 1, "qa", 103000)
+        output = render_token_summary(initialized_project)
+        assert "## Token Usage" in output
+        assert "50,000" in output
+        assert "103,000" in output
+        assert "153,000" in output  # grand total
+        assert "Per Round" in output
+        assert "Per Agent" in output
+        assert "Grand Total" in output
+
+    def test_render_token_summary_multiple_rounds(self, initialized_project):
+        record_tokens(initialized_project, 1, "dev", 50000)
+        record_tokens(initialized_project, 1, "qa", 100000)
+        record_tokens(initialized_project, 2, "dev", 30000)
+        output = render_token_summary(initialized_project)
+        assert "round-1 total" in output
+        assert "round-2 total" in output
+        assert "180,000" in output  # grand total
