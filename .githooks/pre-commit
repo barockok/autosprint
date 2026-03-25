@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Pre-commit hook: verify version sync across all files
+# Install: git config core.hooksPath .githooks
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+bash "$REPO_ROOT/scripts/sync-version.sh"
