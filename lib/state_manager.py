@@ -1,4 +1,4 @@
-"""State Manager — manages .sprint/ directory lifecycle, agent status, consensus, and kanban rendering."""
+"""State Manager — manages .autosprint/ directory lifecycle, agent status, consensus, and kanban rendering."""
 
 import fcntl
 import json
@@ -21,7 +21,7 @@ AGENT_DISPLAY = {
 
 
 def _sprint_dir(project_dir):
-    return os.path.join(project_dir, ".sprint")
+    return os.path.join(project_dir, ".autosprint")
 
 
 def _state_path(project_dir):
@@ -62,7 +62,7 @@ def _locked_update(project_dir, mutator_fn):
 
 
 def init_sprint(project_dir, feature, tech_stack, max_rounds=3, slices=None):
-    """Initialize .sprint/ directory with state and config."""
+    """Initialize .autosprint/ directory with state and config."""
     if slices is None:
         slices = [feature]
 
@@ -101,9 +101,9 @@ def init_sprint(project_dir, feature, tech_stack, max_rounds=3, slices=None):
     }
     _write_json(_config_path(project_dir), config)
 
-    # Add .sprint/ to .gitignore
+    # Add .autosprint/ to .gitignore
     gitignore_path = os.path.join(project_dir, ".gitignore")
-    entry = ".sprint/"
+    entry = ".autosprint/"
     if os.path.isfile(gitignore_path):
         with open(gitignore_path) as f:
             content = f.read()
@@ -213,7 +213,7 @@ def render_kanban(project_dir, fmt="markdown"):
 
     # Markdown GFM table
     lines = []
-    lines.append(f"## Sprint: {state['feature']}")
+    lines.append(f"## AutoSprint: {state['feature']}")
     lines.append("")
     lines.append(
         f"**Slice {state['currentSlice']}/{state['totalSlices']}"

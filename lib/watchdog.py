@@ -21,7 +21,7 @@ class WatchdogAlert:
 
 
 def _sprint_dir(project_dir):
-    return os.path.join(project_dir, ".sprint")
+    return os.path.join(project_dir, ".autosprint")
 
 
 def _state_path(project_dir):

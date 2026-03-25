@@ -1,25 +1,25 @@
 ---
-name: sprint
+name: autosprint
 description: Use when developing features that need multi-agent validation with parallel review — dispatches Dev, QA, UI, Security, and TPM agents in iterative consensus rounds with real E2E testing, structural UI validation, security audit, and documentation verification
 ---
 
-# Sprint — Multi-Agent Feature Development
+# AutoAutoSprint — Multi-Agent Feature Development
 
 ## Overview
 
-Sprint dispatches 5 specialized agents in iterative rounds to build, test, validate, and document features with extreme confirmation. Each round follows the cycle: Dev implements, then QA + UI + Security + TPM review in parallel, then a consensus gate decides whether to fix or proceed.
+AutoSprint dispatches 5 specialized agents in iterative rounds to build, test, validate, and document features with extreme confirmation. Each round follows the cycle: Dev implements, then QA + UI + Security + TPM review in parallel, then a consensus gate decides whether to fix or proceed.
 
 Core principle: No feature ships until Dev, QA, UI, Security, and TPM all approve through independent verification.
 
 ## When to Use / When Not to Use
 
-**Use Sprint when:**
+**Use AutoSprint when:**
 - Building a new feature that needs comprehensive validation
 - The change touches UI components, security-sensitive code, or public documentation
 - You need parallel review from multiple disciplines before merging
 - The feature spans multiple slices that each need independent verification
 
-**Do NOT use Sprint when:**
+**Do NOT use AutoSprint when:**
 - Fixing a quick, isolated bug (use a direct fix instead)
 - Pure refactoring with no behavioral change
 - Exploratory prototyping or spike work
@@ -38,7 +38,7 @@ Core principle: No feature ships until Dev, QA, UI, Security, and TPM all approv
 ## Process Flow
 
 ```dot
-digraph sprint {
+digraph autosprint {
     rankdir=TB;
     node [shape=box, style=rounded, fontname="Helvetica"];
     edge [fontname="Helvetica", fontsize=10];
@@ -72,8 +72,8 @@ digraph sprint {
 ## Invocation
 
 ```
-/sprint add user authentication with OAuth2
-/sprint --max-rounds 5 --skip-security add payment processing
+/autosprint add user authentication with OAuth2
+/autosprint --max-rounds 5 --skip-security add payment processing
 ```
 
 | Parameter         | Default | Description                                |
@@ -95,17 +95,17 @@ Everything after the flags is the **feature description**.
    python3 <skill-dir>/lib/tech_detect.py <project-dir>
    ```
    Capture the JSON output; it contains `framework`, `language`, `test_runner`, `ui_library`, and more.
-3. **Init sprint state** — call `init_sprint` from `state_manager` by invoking:
+3. **Init autoautosprint state** — call `init_sprint` from `state_manager` by invoking:
    ```python
    from lib.state_manager import init_sprint
    init_sprint(project_dir, feature_description, tech_stack, max_rounds=N, slices=slice_list)
    ```
-   This creates `.sprint/state.json` and `.sprint/config.json`.
+   This creates `.autosprint/state.json` and `.autosprint/config.json`.
 4. **Start watchdog** in background:
    ```bash
    python3 <skill-dir>/lib/watchdog.py <project-dir> --loop &
    ```
-5. **Add `.sprint/` to `.gitignore`** if not already present.
+5. **Add `.autosprint/` to `.gitignore`** if not already present.
 
 ### Step 2: UI Design Spec (Phase 1)
 
@@ -160,7 +160,7 @@ Everything after the flags is the **feature description**.
    - Total rounds used
    - Consensus votes per agent
    - Any outstanding warnings
-5. Clean up: kill the watchdog background process, optionally archive `.sprint/state.json`.
+5. Clean up: kill the watchdog background process, optionally archive `.autosprint/state.json`.
 
 ## Kanban Display
 
@@ -174,18 +174,18 @@ Trigger points: after initialization, before/after each Dev dispatch, as each re
 
 ## State Management
 
-All state is persisted in the `.sprint/` directory:
+All state is persisted in the `.autosprint/` directory:
 
-- `.sprint/state.json` — current round, slice index, agent statuses, votes, findings
-- `.sprint/config.json` — feature description, tech stack, max rounds, skip flags
+- `.autosprint/state.json` — current round, slice index, agent statuses, votes, findings
+- `.autosprint/config.json` — feature description, tech stack, max rounds, skip flags
 
-If a session is interrupted, the orchestrator resumes from `state.json` on next invocation. The watchdog detects stalled agents and logs warnings to `.sprint/watchdog.log`.
+If a session is interrupted, the orchestrator resumes from `state.json` on next invocation. The watchdog detects stalled agents and logs warnings to `.autosprint/watchdog.log`.
 
 ## Integration
 
 **Recommended chain:**
 ```
-/brainstorm → /write-plan → /sprint → /simplify → /finish-branch
+/brainstorm → /write-plan → /autosprint → /simplify → /finish-branch
 ```
 
 **Agent prompt files:**
@@ -197,7 +197,7 @@ If a session is interrupted, the orchestrator resumes from `state.json` on next 
 
 **Python library files:**
 - `lib/tech_detect.py` — auto-detects project tech stack
-- `lib/state_manager.py` — sprint state, kanban rendering, consensus checking
+- `lib/state_manager.py` — autosprint state, kanban rendering, consensus checking
 - `lib/watchdog.py` — heartbeat monitoring, stall/timeout detection
 
 ## Red Flags — Never Do These

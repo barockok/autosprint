@@ -41,7 +41,7 @@ def initialized_project(project):
 class TestInitSprint:
     def test_creates_sprint_directory(self, project):
         init_sprint(project, "dark mode", "React, TailwindCSS")
-        sprint_dir = os.path.join(project, ".sprint")
+        sprint_dir = os.path.join(project, ".autosprint")
         assert os.path.isdir(sprint_dir)
         assert os.path.isdir(os.path.join(sprint_dir, "rounds"))
         assert os.path.isdir(os.path.join(sprint_dir, "logs"))
@@ -70,7 +70,7 @@ class TestInitSprint:
         assert os.path.isfile(gitignore_path)
         with open(gitignore_path) as f:
             content = f.read()
-        assert ".sprint/" in content
+        assert ".autosprint/" in content
 
     def test_appends_gitignore_if_exists(self, project):
         gitignore_path = os.path.join(project, ".gitignore")
@@ -80,7 +80,7 @@ class TestInitSprint:
         with open(gitignore_path) as f:
             content = f.read()
         assert "node_modules/" in content
-        assert ".sprint/" in content
+        assert ".autosprint/" in content
 
 
 class TestUpdateAgentStatus:
@@ -142,7 +142,7 @@ class TestConsensus:
     def test_record_vote_creates_report_file(self, initialized_project):
         record_vote(initialized_project, 1, "qa", "PASS", "All tests pass")
         report_path = os.path.join(
-            initialized_project, ".sprint", "rounds", "round-1", "qa-report.json"
+            initialized_project, ".autosprint", "rounds", "round-1", "qa-report.json"
         )
         assert os.path.isfile(report_path)
         with open(report_path) as f:
@@ -156,7 +156,7 @@ class TestKanbanRendering:
         update_agent_status(initialized_project, "dev", "running")
         update_agent_status(initialized_project, "qa", "completed")
         output = render_kanban(initialized_project, fmt="markdown")
-        assert "## Sprint: dark mode" in output
+        assert "## AutoSprint: dark mode" in output
         assert "Slice 1/2 | Round 1/3" in output
         assert "Agent" in output
         assert "Dev" in output

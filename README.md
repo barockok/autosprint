@@ -1,4 +1,4 @@
-# Sprint
+# AutoSprint
 
 Multi-agent feature development skill for Claude Code. Dispatches 5 specialized agents (Dev, QA, UI, Security, TPM) in iterative rounds with consensus gating.
 
@@ -7,30 +7,30 @@ Multi-agent feature development skill for Claude Code. Dispatches 5 specialized 
 **Quick install:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/<user>/sprint/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/<user>/autosprint/main/install.sh | bash
 ```
 
 **From source:**
 
 ```bash
-git clone https://github.com/<user>/sprint.git
-cd sprint && bash install.sh
+git clone https://github.com/<user>/autosprint.git
+cd autosprint && bash install.sh
 ```
 
 **For your team (project-level):**
 
 ```bash
 bash install.sh --project
-git add .claude/skills/sprint/
-git commit -m "Add sprint skill"
+git add .claude/skills/autosprint/
+git commit -m "Add autosprint skill"
 ```
 
 ## Usage
 
 ```
-/sprint add user authentication with OAuth2
-/sprint --max-rounds 5 add payment processing
-/sprint --skip-security add landing page
+/autosprint add user authentication with OAuth2
+/autosprint --max-rounds 5 add payment processing
+/autosprint --skip-security add landing page
 ```
 
 ## What It Does
@@ -57,10 +57,10 @@ git commit -m "Add sprint skill"
 
 ## Workflow Integration
 
-Sprint fits into the superpowers workflow chain:
+AutoSprint fits into the superpowers workflow chain:
 
 ```
-/brainstorm -> /write-plan -> /sprint -> /simplify -> /finish-branch
+/brainstorm -> /write-plan -> /autosprint -> /simplify -> /finish-branch
 ```
 
 ## Tech Stack Support
@@ -82,7 +82,7 @@ Auto-detects and adapts to:
 
 ### State Management
 
-Sprint creates a `.sprint/` directory (auto-added to .gitignore) that tracks:
+AutoSprint creates a `.autosprint/` directory (auto-added to .gitignore) that tracks:
 - Current phase, slice, and round
 - Agent statuses with heartbeat timestamps
 - Consensus votes per round

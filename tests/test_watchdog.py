@@ -19,7 +19,7 @@ def sprint_dir(tmp_path):
 
 def _backdate_agent(project_dir, agent, seconds_ago):
     """Helper: backdate an agent's lastActivity by N seconds."""
-    state_path = os.path.join(project_dir, ".sprint", "state.json")
+    state_path = os.path.join(project_dir, ".autosprint", "state.json")
     state = json.loads(open(state_path).read())
     old_time = (datetime.now(timezone.utc) - timedelta(seconds=seconds_ago)).isoformat()
     state["agents"][agent]["lastActivity"] = old_time
@@ -86,7 +86,7 @@ def test_completed_agents_ignored(sprint_dir):
 def test_round_completion_detection(sprint_dir):
     """When all 4 reviewer reports exist in round dir, phase becomes consensus_ready."""
     reviewers = ["qa", "ui", "security", "tpm"]
-    round_dir = os.path.join(sprint_dir, ".sprint", "rounds", "round-1")
+    round_dir = os.path.join(sprint_dir, ".autosprint", "rounds", "round-1")
     os.makedirs(round_dir, exist_ok=True)
 
     for reviewer in reviewers:

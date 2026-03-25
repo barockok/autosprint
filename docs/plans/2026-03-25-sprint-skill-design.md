@@ -93,10 +93,10 @@ The orchestrator scans the project root:
 
 ### State Persistence
 
-The skill creates `.sprint/` in the project root (added to `.gitignore`):
+The skill creates `.autosprint/` in the project root (added to `.gitignore`):
 
 ```
-.sprint/
+.autosprint/
 ├── state.json              # Master state: phase, round, agent statuses
 ├── config.json             # Invocation config (max rounds, tech stack, slices)
 ├── watchdog.py             # Watchdog script (generated & executed)
@@ -125,8 +125,8 @@ The skill creates `.sprint/` in the project root (added to `.gitignore`):
   "maxRounds": 3,
   "phase": "reviewing",
   "agents": {
-    "dev":      { "status": "completed", "worktree": ".sprint/worktrees/dev", "lastActivity": "2026-03-25T10:30:00Z" },
-    "qa":       { "status": "running",   "worktree": ".sprint/worktrees/qa",  "lastActivity": "2026-03-25T10:31:00Z" },
+    "dev":      { "status": "completed", "worktree": ".autosprint/worktrees/dev", "lastActivity": "2026-03-25T10:30:00Z" },
+    "qa":       { "status": "running",   "worktree": ".autosprint/worktrees/qa",  "lastActivity": "2026-03-25T10:31:00Z" },
     "ui":       { "status": "running",   "lastActivity": "2026-03-25T10:31:05Z" },
     "security": { "status": "pending",   "lastActivity": null },
     "tpm":      { "status": "pending",   "lastActivity": null }

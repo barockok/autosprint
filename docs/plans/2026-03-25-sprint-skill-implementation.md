@@ -124,7 +124,7 @@ Expected: FAIL with "ModuleNotFoundError: No module named 'lib.tech_detect'"
 
 ```python
 # lib/tech_detect.py
-"""Tech stack auto-detection for sprint skill.
+"""Tech stack auto-detection for autosprint skill.
 
 Scans project directory for config files and determines:
 - Tech stack(s) detected
@@ -319,15 +319,15 @@ from lib.state_manager import (
 class TestInitSprint:
     def test_creates_sprint_directory(self, tmp_path):
         init_sprint(str(tmp_path), "add auth", ["web-frontend"], max_rounds=3, slices=["auth flow", "token refresh"])
-        assert (tmp_path / ".sprint").is_dir()
-        assert (tmp_path / ".sprint" / "state.json").exists()
-        assert (tmp_path / ".sprint" / "config.json").exists()
-        assert (tmp_path / ".sprint" / "rounds").is_dir()
-        assert (tmp_path / ".sprint" / "logs").is_dir()
+        assert (tmp_path / ".autosprint").is_dir()
+        assert (tmp_path / ".autosprint" / "state.json").exists()
+        assert (tmp_path / ".autosprint" / "config.json").exists()
+        assert (tmp_path / ".autosprint" / "rounds").is_dir()
+        assert (tmp_path / ".autosprint" / "logs").is_dir()
 
     def test_state_json_structure(self, tmp_path):
         init_sprint(str(tmp_path), "add auth", ["web-frontend"], max_rounds=5, slices=["slice1"])
-        state = json.loads((tmp_path / ".sprint" / "state.json").read_text())
+        state = json.loads((tmp_path / ".autosprint" / "state.json").read_text())
         assert state["feature"] == "add auth"
         assert state["techStack"] == ["web-frontend"]
         assert state["maxRounds"] == 5
@@ -342,14 +342,14 @@ class TestInitSprint:
     def test_adds_gitignore(self, tmp_path):
         init_sprint(str(tmp_path), "feat", ["python"], slices=["s1"])
         gitignore = tmp_path / ".gitignore"
-        assert ".sprint/" in gitignore.read_text()
+        assert ".autosprint/" in gitignore.read_text()
 
     def test_appends_gitignore_if_exists(self, tmp_path):
         (tmp_path / ".gitignore").write_text("node_modules/\n")
         init_sprint(str(tmp_path), "feat", ["python"], slices=["s1"])
         content = (tmp_path / ".gitignore").read_text()
         assert "node_modules/" in content
-        assert ".sprint/" in content
+        assert ".autosprint/" in content
 
 
 class TestUpdateAgentStatus:
@@ -453,9 +453,9 @@ Expected: FAIL with "ModuleNotFoundError"
 
 ```python
 # lib/state_manager.py
-"""State management and kanban rendering for sprint skill.
+"""State management and kanban rendering for autosprint skill.
 
-Manages .sprint/ directory lifecycle:
+Manages .autosprint/ directory lifecycle:
 - Initialize sprint state
 - Update agent statuses with timestamps
 - Record consensus votes
@@ -474,7 +474,7 @@ REVIEWERS = ["qa", "ui", "security", "tpm"]
 
 
 def _sprint_dir(project_dir: str) -> Path:
-    return Path(project_dir) / ".sprint"
+    return Path(project_dir) / ".autosprint"
 
 
 def _state_path(project_dir: str) -> Path:
@@ -529,14 +529,14 @@ def init_sprint(
     }
     (sprint / "config.json").write_text(json.dumps(config, indent=2))
 
-    # Add .sprint/ to .gitignore
+    # Add .autosprint/ to .gitignore
     gitignore = Path(project_dir) / ".gitignore"
     if gitignore.exists():
         content = gitignore.read_text()
-        if ".sprint/" not in content:
-            gitignore.write_text(content.rstrip("\n") + "\n.sprint/\n")
+        if ".autosprint/" not in content:
+            gitignore.write_text(content.rstrip("\n") + "\n.autosprint/\n")
     else:
-        gitignore.write_text(".sprint/\n")
+        gitignore.write_text(".autosprint/\n")
 
 
 def update_agent_status(
@@ -754,10 +754,10 @@ class TestWatchdog:
         init_sprint(str(tmp_path), "feat", ["python"], slices=["s1"])
         update_agent_status(str(tmp_path), "dev", "running")
         # Manually backdate lastActivity
-        state = json.loads((tmp_path / ".sprint" / "state.json").read_text())
+        state = json.loads((tmp_path / ".autosprint" / "state.json").read_text())
         old_time = (datetime.now(timezone.utc) - timedelta(seconds=200)).isoformat()
         state["agents"]["dev"]["lastActivity"] = old_time
-        (tmp_path / ".sprint" / "state.json").write_text(json.dumps(state))
+        (tmp_path / ".autosprint" / "state.json").write_text(json.dumps(state))
 
         alerts = check_agents(str(tmp_path), stall_threshold=180)
         assert len(alerts) == 1
@@ -767,10 +767,10 @@ class TestWatchdog:
     def test_timeout_alert(self, tmp_path):
         init_sprint(str(tmp_path), "feat", ["python"], slices=["s1"])
         update_agent_status(str(tmp_path), "dev", "running")
-        state = json.loads((tmp_path / ".sprint" / "state.json").read_text())
+        state = json.loads((tmp_path / ".autosprint" / "state.json").read_text())
         old_time = (datetime.now(timezone.utc) - timedelta(seconds=700)).isoformat()
         state["agents"]["dev"]["lastActivity"] = old_time
-        (tmp_path / ".sprint" / "state.json").write_text(json.dumps(state))
+        (tmp_path / ".autosprint" / "state.json").write_text(json.dumps(state))
 
         alerts = check_agents(str(tmp_path), stall_threshold=180, agent_timeout=600)
         assert len(alerts) == 1
@@ -779,13 +779,13 @@ class TestWatchdog:
     def test_timeout_updates_state(self, tmp_path):
         init_sprint(str(tmp_path), "feat", ["python"], slices=["s1"])
         update_agent_status(str(tmp_path), "dev", "running")
-        state = json.loads((tmp_path / ".sprint" / "state.json").read_text())
+        state = json.loads((tmp_path / ".autosprint" / "state.json").read_text())
         old_time = (datetime.now(timezone.utc) - timedelta(seconds=700)).isoformat()
         state["agents"]["dev"]["lastActivity"] = old_time
-        (tmp_path / ".sprint" / "state.json").write_text(json.dumps(state))
+        (tmp_path / ".autosprint" / "state.json").write_text(json.dumps(state))
 
         check_agents(str(tmp_path), stall_threshold=180, agent_timeout=600)
-        state = json.loads((tmp_path / ".sprint" / "state.json").read_text())
+        state = json.loads((tmp_path / ".autosprint" / "state.json").read_text())
         assert state["agents"]["dev"]["status"] == "TIMEOUT"
 
     def test_completed_agents_ignored(self, tmp_path):
@@ -797,13 +797,13 @@ class TestWatchdog:
     def test_round_completion_detection(self, tmp_path):
         init_sprint(str(tmp_path), "feat", ["python"], slices=["s1"])
         # Create all reviewer reports
-        round_dir = tmp_path / ".sprint" / "rounds" / "round-1"
+        round_dir = tmp_path / ".autosprint" / "rounds" / "round-1"
         round_dir.mkdir(parents=True, exist_ok=True)
         for agent in ["qa", "ui", "security", "tpm"]:
             (round_dir / f"{agent}-report.json").write_text(json.dumps({"vote": "PASS"}))
 
         alerts = check_agents(str(tmp_path))
-        state = json.loads((tmp_path / ".sprint" / "state.json").read_text())
+        state = json.loads((tmp_path / ".autosprint" / "state.json").read_text())
         assert state["phase"] == "consensus_ready"
 ```
 
@@ -816,7 +816,7 @@ Expected: FAIL with "ModuleNotFoundError"
 
 ```python
 # lib/watchdog.py
-"""Watchdog for sprint skill — monitors agent health and detects issues.
+"""Watchdog for autosprint skill — monitors agent health and detects issues.
 
 Checks:
 - Heartbeat: agents update lastActivity on every action
@@ -851,7 +851,7 @@ def check_agents(
     stall_threshold: int = 180,
     agent_timeout: int = 600,
 ) -> list[WatchdogAlert]:
-    sprint_dir = Path(project_dir) / ".sprint"
+    sprint_dir = Path(project_dir) / ".autosprint"
     state_path = sprint_dir / "state.json"
     if not state_path.exists():
         return []
@@ -1058,7 +1058,7 @@ python3 {{sprintLibPath}}/state_manager.py {{projectDir}} heartbeat dev
 
 ## Output
 
-When done, write your report to `.sprint/rounds/round-{{currentRound}}/dev-report.json`:
+When done, write your report to `.autosprint/rounds/round-{{currentRound}}/dev-report.json`:
 
 ```json
 {
@@ -1154,7 +1154,7 @@ python3 {{sprintLibPath}}/state_manager.py {{projectDir}} heartbeat qa
 
 ## Output
 
-Write your report to `.sprint/rounds/round-{{currentRound}}/qa-report.json`:
+Write your report to `.autosprint/rounds/round-{{currentRound}}/qa-report.json`:
 
 ```json
 {
@@ -1239,7 +1239,7 @@ python3 {{sprintLibPath}}/state_manager.py {{projectDir}} heartbeat ui
 
 ## Output
 
-Write your report to `.sprint/rounds/round-{{currentRound}}/ui-report.json`:
+Write your report to `.autosprint/rounds/round-{{currentRound}}/ui-report.json`:
 
 ```json
 {
@@ -1344,7 +1344,7 @@ python3 {{sprintLibPath}}/state_manager.py {{projectDir}} heartbeat security
 
 ## Output
 
-Write your report to `.sprint/rounds/round-{{currentRound}}/security-report.json`:
+Write your report to `.autosprint/rounds/round-{{currentRound}}/security-report.json`:
 
 ```json
 {
@@ -1464,7 +1464,7 @@ Do NOT override:
 
 ## Output
 
-Write your report to `.sprint/rounds/round-{{currentRound}}/tpm-report.json`:
+Write your report to `.autosprint/rounds/round-{{currentRound}}/tpm-report.json`:
 
 ```json
 {
@@ -1663,7 +1663,7 @@ When this skill is invoked, follow these steps exactly:
    ```bash
    python3 <skill-dir>/lib/watchdog.py <project-dir> --loop &
    ```
-5. Add `.sprint/` to `.gitignore` if not already present
+5. Add `.autosprint/` to `.gitignore` if not already present
 
 ### Step 2: UI Design Spec (Phase 1)
 
@@ -1731,9 +1731,9 @@ python3 -c "from lib.state_manager import render_kanban; print(render_kanban('<p
 
 ## State Management
 
-All state persists in `.sprint/` directory. See `lib/state_manager.py`.
+All state persists in `.autosprint/` directory. See `lib/state_manager.py`.
 
-If session is interrupted, the orchestrator reads `.sprint/state.json` on next invocation and resumes from the current phase.
+If session is interrupted, the orchestrator reads `.autosprint/state.json` on next invocation and resumes from the current phase.
 
 ## Integration
 
@@ -1814,7 +1814,7 @@ for tmpl in state.json config.json; do
 done
 
 echo ""
-echo "Sprint skill installed successfully!"
+echo "AutoSprint skill installed successfully!"
 echo ""
 echo "Usage:"
 echo "  /sprint <feature description>"
@@ -1868,7 +1868,7 @@ cd sprint && bash install.sh
 ```bash
 bash install.sh --project
 git add .claude/skills/sprint/
-git commit -m "Add sprint skill"
+git commit -m "Add autosprint skill"
 ```
 
 ## Usage
@@ -1954,7 +1954,7 @@ Orchestrator (main Claude Code session) dispatches agents via Agent tool.
 
 ## State Management
 
-`.sprint/` directory persists all workflow state:
+`.autosprint/` directory persists all workflow state:
 
 - `state.json` — master state (phase, round, agent statuses, consensus)
 - `config.json` — invocation config

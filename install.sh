@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SKILL_NAME="sprint"
+SKILL_NAME="autosprint"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Determine install target
@@ -39,11 +39,11 @@ for tmpl in state.json config.json; do
 done
 
 echo ""
-echo "Sprint skill installed successfully!"
+echo "AutoSprint skill installed successfully!"
 echo ""
 echo "Usage:"
-echo "  /sprint <feature description>"
-echo "  /sprint --max-rounds 5 add user authentication"
+echo "  /autosprint <feature description>"
+echo "  /autosprint --max-rounds 5 add user authentication"
 echo ""
 echo "Options:"
 echo "  --max-rounds N    Max review iterations per slice (default: 3)"

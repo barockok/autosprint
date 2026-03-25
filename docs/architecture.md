@@ -1,4 +1,4 @@
-# Sprint Architecture
+# AutoSprint Architecture
 
 ## Execution Model
 
@@ -9,7 +9,7 @@ Orchestrator (main Claude Code session) dispatches agents via Agent tool.
 
 ## State Management
 
-`.sprint/` directory persists all workflow state:
+`.autosprint/` directory persists all workflow state:
 
 - `state.json` — master state (phase, round, agent statuses, consensus)
 - `config.json` — invocation config
