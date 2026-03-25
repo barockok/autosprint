@@ -70,7 +70,8 @@ TPM never fails because it can't reach a higher level — reports as recommendat
 
 ## Skill Dependencies
 
-- **`frontend-design`** — UI agent invokes this skill during Phase 1 to produce distinctive, production-grade design specs. Ensures design output avoids generic AI aesthetics and commits to a bold aesthetic direction.
+- **`superpowers` plugin** — Provides the workflow chain skills: `/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`. AutoSprint slots into this chain as the execution step.
+- **`frontend-design`** — UI agent invokes this skill during Phase 1 to produce distinctive, production-grade design specs. Avoids generic AI aesthetics.
 
 ## Key Decisions
 

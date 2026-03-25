@@ -189,7 +189,8 @@ If a session is interrupted, the orchestrator resumes from `state.json` on next 
 ```
 
 **Skill dependencies:**
-- `frontend-design` — REQUIRED by UI agent for Phase 1 design spec generation. Install via `/plugin` or ensure `frontend-design` skill is available.
+- `superpowers` plugin — REQUIRED for the full workflow chain (`/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`). Install via `/plugin`.
+- `frontend-design` — REQUIRED by UI agent for Phase 1 design spec generation. Install via `/plugin`.
 
 **Agent prompt files:**
 - `agents/dev-agent.md`
