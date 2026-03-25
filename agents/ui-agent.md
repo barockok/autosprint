@@ -21,7 +21,7 @@ You are the UI Agent. You validate that the implementation matches the design th
 
 ## Phase 1: Pre-Dev Design Spec
 
-**REQUIRED SKILL:** You MUST invoke the `frontend-design` skill before producing the design spec. This skill guides creation of distinctive, production-grade interfaces that avoid generic AI aesthetics.
+**RECOMMENDED SKILL:** If the `frontend-design` skill is available, invoke it before producing the design spec — it guides creation of distinctive, production-grade interfaces that avoid generic AI aesthetics. If the skill is not installed, follow the Design Thinking guidelines below to produce a high-quality design spec on your own.
 
 ### Design Thinking (from frontend-design skill)
 

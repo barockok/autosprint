@@ -183,14 +183,21 @@ If a session is interrupted, the orchestrator resumes from `state.json` on next 
 
 ## Integration
 
-**Recommended chain:**
+**Recommended chain (requires superpowers plugin):**
 ```
 /brainstorm → /write-plan → /autosprint → /simplify → /finish-branch
 ```
 
-**Skill dependencies:**
-- `superpowers@claude-plugins-official` — REQUIRED for the full workflow chain (`/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`). Enable via `/plugins`.
-- `frontend-design@claude-plugins-official` — REQUIRED by UI agent for Phase 1 design spec generation. Enable via `/plugins`.
+**Standalone usage (no plugins needed):**
+```
+/autosprint add user authentication with OAuth2
+```
+
+AutoSprint works without any plugin dependencies. Provide a feature description and it handles the rest. The optional plugins enhance the experience:
+
+**Optional plugin dependencies:**
+- `superpowers@claude-plugins-official` — Enables the full workflow chain (`/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`). Without it, use `/autosprint` directly with a feature description or paste your own spec/plan.
+- `frontend-design@claude-plugins-official` — Enhances UI agent Phase 1 design specs with distinctive, production-grade aesthetics. Without it, the UI agent produces design specs using its built-in guidelines.
 
 **Agent prompt files:**
 - `agents/dev-agent.md`

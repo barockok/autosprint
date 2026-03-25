@@ -10,32 +10,9 @@ Multi-agent feature development skill for Claude Code. Dispatches 5 specialized 
 2. Python 3.8+ available on your PATH
 3. Git installed (for worktree isolation)
 
-### Step 1: Install required plugins
+### Step 1: Install AutoSprint
 
-AutoSprint depends on two plugins from the official Claude Code marketplace. Open Claude Code and run:
-
-```
-/plugins
-```
-
-Then enable these plugins:
-- **superpowers** (`superpowers@claude-plugins-official`) — provides `/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`
-- **frontend-design** (`frontend-design@claude-plugins-official`) — used by UI agent for design spec generation
-
-Or add them directly to your `~/.claude/settings.json`:
-
-```json
-{
-  "enabledPlugins": {
-    "superpowers@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true
-  }
-}
-```
-
-> **Note:** If you don't have the `claude-plugins-official` marketplace, add it first via `/plugins` and follow the marketplace setup prompts.
-
-### Step 2: Install AutoSprint
+AutoSprint works standalone with **zero plugin dependencies**. Just install and use `/autosprint`.
 
 **Option A — Quick install (curl):**
 
@@ -76,6 +53,26 @@ Or simply start using it:
 
 ```
 /autosprint add user authentication
+```
+
+### Step 3 (Optional): Install plugins for enhanced experience
+
+AutoSprint works great on its own, but these optional plugins unlock the full workflow:
+
+| Plugin | What it adds | Without it |
+|--------|-------------|------------|
+| `superpowers@claude-plugins-official` | Full workflow chain: `/brainstorm → /write-plan → /autosprint → /simplify → /finish-branch` | Use `/autosprint` directly with a feature description |
+| `frontend-design@claude-plugins-official` | UI agent produces distinctive, production-grade design specs | UI agent uses built-in design guidelines |
+
+To install, run `/plugins` in Claude Code and enable them. Or add to `~/.claude/settings.json`:
+
+```json
+{
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true
+  }
+}
 ```
 
 ### Recommended permissions
@@ -173,8 +170,8 @@ Markdown tables displayed at key moments showing agent status, consensus votes, 
 - Claude Code with Agent tool support
 - Python 3.8+ (for state management and watchdog)
 - Git (for worktree isolation)
-- `superpowers@claude-plugins-official` plugin (workflow chain: `/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`)
-- `frontend-design@claude-plugins-official` plugin (UI agent design spec generation)
+- (Optional) `superpowers@claude-plugins-official` — enables full workflow chain
+- (Optional) `frontend-design@claude-plugins-official` — enhances UI agent design specs
 
 ## Architecture
 
