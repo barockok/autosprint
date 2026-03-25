@@ -1,5 +1,6 @@
 ---
 name: autosprint
+version: 1.1.0
 description: Use when developing features that need multi-agent validation with parallel review — dispatches Dev, QA, UI, Security, and TPM agents in iterative consensus rounds with real E2E testing, structural UI validation, security audit, and documentation verification
 ---
 
@@ -54,6 +55,14 @@ Core principle: No feature ships until Dev, QA, UI, Security, and TPM all approv
 ## Orchestrator Instructions
 
 **IMPORTANT:** You are the orchestrator. Follow these steps exactly. When the instructions say "display kanban", you MUST run the Python command and output the resulting markdown table to the user. Do not skip kanban displays.
+
+### Before Anything Else
+
+**Print the skill version to the user:**
+
+```
+AutoSprint v1.1.0
+```
 
 ### Resolving Paths
 
