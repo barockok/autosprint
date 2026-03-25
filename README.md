@@ -12,23 +12,28 @@ Multi-agent feature development skill for Claude Code. Dispatches 5 specialized 
 
 ### Step 1: Install required plugins
 
-Open Claude Code and install the skill dependencies:
+AutoSprint depends on two plugins from the official Claude Code marketplace. Open Claude Code and run:
 
 ```
-/plugin install superpowers
-/plugin install frontend-design
+/plugins
 ```
 
-Or add them manually to your `~/.claude/settings.json`:
+Then enable these plugins:
+- **superpowers** (`superpowers@claude-plugins-official`) — provides `/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`
+- **frontend-design** (`frontend-design@claude-plugins-official`) — used by UI agent for design spec generation
+
+Or add them directly to your `~/.claude/settings.json`:
 
 ```json
 {
-  "plugins": [
-    "superpowers",
-    "frontend-design"
-  ]
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true
+  }
 }
 ```
+
+> **Note:** If you don't have the `claude-plugins-official` marketplace, add it first via `/plugins` and follow the marketplace setup prompts.
 
 ### Step 2: Install AutoSprint
 
@@ -168,8 +173,8 @@ Markdown tables displayed at key moments showing agent status, consensus votes, 
 - Claude Code with Agent tool support
 - Python 3.8+ (for state management and watchdog)
 - Git (for worktree isolation)
-- `superpowers` plugin (for workflow chain: `/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch` -- install via `/plugin`)
-- `frontend-design` skill (used by UI agent for design spec generation -- install via `/plugin`)
+- `superpowers@claude-plugins-official` plugin (workflow chain: `/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`)
+- `frontend-design@claude-plugins-official` plugin (UI agent design spec generation)
 
 ## Architecture
 

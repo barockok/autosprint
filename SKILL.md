@@ -189,8 +189,8 @@ If a session is interrupted, the orchestrator resumes from `state.json` on next 
 ```
 
 **Skill dependencies:**
-- `superpowers` plugin — REQUIRED for the full workflow chain (`/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`). Install via `/plugin`.
-- `frontend-design` — REQUIRED by UI agent for Phase 1 design spec generation. Install via `/plugin`.
+- `superpowers@claude-plugins-official` — REQUIRED for the full workflow chain (`/brainstorm`, `/write-plan`, `/simplify`, `/finish-branch`). Enable via `/plugins`.
+- `frontend-design@claude-plugins-official` — REQUIRED by UI agent for Phase 1 design spec generation. Enable via `/plugins`.
 
 **Agent prompt files:**
 - `agents/dev-agent.md`
