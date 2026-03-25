@@ -12,7 +12,6 @@ Usage as CLI:
     python -m lib.tech_detect [directory]
 """
 
-import glob
 import json
 import os
 import sys
@@ -60,7 +59,11 @@ def _has_ios(project_dir, deps):
     if os.path.isfile(os.path.join(project_dir, "Podfile")):
         return True
     # Check for *.xcodeproj directories
-    for entry in os.listdir(project_dir):
+    try:
+        entries = os.listdir(project_dir)
+    except OSError:
+        return False
+    for entry in entries:
         if entry.endswith(".xcodeproj"):
             return True
     return False
@@ -69,6 +72,7 @@ def _has_ios(project_dir, deps):
 def _has_android(project_dir, deps):
     return (
         os.path.isfile(os.path.join(project_dir, "build.gradle"))
+        or os.path.isfile(os.path.join(project_dir, "build.gradle.kts"))
         or os.path.isfile(os.path.join(project_dir, "AndroidManifest.xml"))
     )
 
