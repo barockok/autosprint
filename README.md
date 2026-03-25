@@ -4,25 +4,89 @@ Multi-agent feature development skill for Claude Code. Dispatches 5 specialized 
 
 ## Install
 
-**Quick install:**
+### Prerequisites
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/<user>/autosprint/main/install.sh | bash
+1. [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) installed and working
+2. Python 3.8+ available on your PATH
+3. Git installed (for worktree isolation)
+
+### Step 1: Install required plugins
+
+Open Claude Code and install the skill dependencies:
+
+```
+/plugin install superpowers
+/plugin install frontend-design
 ```
 
-**From source:**
+Or add them manually to your `~/.claude/settings.json`:
+
+```json
+{
+  "plugins": [
+    "superpowers",
+    "frontend-design"
+  ]
+}
+```
+
+### Step 2: Install AutoSprint
+
+**Option A — Quick install (curl):**
 
 ```bash
-git clone https://github.com/<user>/autosprint.git
+curl -fsSL https://raw.githubusercontent.com/barockok/autosprint/main/install.sh | bash
+```
+
+This copies the skill to `~/.claude/skills/autosprint/` — available in all your projects.
+
+**Option B — From source:**
+
+```bash
+git clone https://github.com/barockok/autosprint.git
 cd autosprint && bash install.sh
 ```
 
-**For your team (project-level):**
+**Option C — Project-level (for teams):**
 
 ```bash
-bash install.sh --project
+# From within your project directory
+git clone https://github.com/barockok/autosprint.git /tmp/autosprint
+bash /tmp/autosprint/install.sh --project
 git add .claude/skills/autosprint/
 git commit -m "Add autosprint skill"
+```
+
+This installs to `.claude/skills/autosprint/` in your project — your team gets it via git.
+
+### Step 3: Verify installation
+
+Open Claude Code in any project and run:
+
+```
+/autosprint --help
+```
+
+Or simply start using it:
+
+```
+/autosprint add user authentication
+```
+
+### Recommended permissions
+
+Add these to your project's `.claude/settings.json` to reduce permission prompts during sprint runs:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 *)",
+      "Bash(playwright *)",
+      "Edit(.autosprint/**)"
+    ]
+  }
+}
 ```
 
 ## Usage
