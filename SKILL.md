@@ -182,22 +182,32 @@ For each slice:
 
 2. **Dispatch ALL active reviewers IN PARALLEL** using multiple Agent tool calls in one message (respect `--skip-*` flags):
 
-   - **QA Agent** — `isolation: worktree`
+   **CRITICAL — Token Optimization:** To keep review agents fast and cheap, you MUST:
+   - Pass only the **list of files changed by Dev** (from Dev's report), not the entire codebase
+   - Tell each reviewer to **ONLY read the files Dev changed** — do not explore the rest of the project
+   - Use `model: haiku` for TPM agent (lightweight doc validation)
+   - Use `model: sonnet` for Security and UI agents (medium complexity)
+   - Use `model: opus` for QA agent only (needs to write and run tests)
+
+   - **QA Agent** — `isolation: worktree`, `model: opus`
      - Load prompt from `SKILL_DIR/agents/qa-agent.md`
      - Fill in `{{feature}}`, `{{techStack}}`, `{{sliceDescription}}`, `{{qaTool}}`, `{{currentRound}}`, `{{maxRounds}}`
+     - Include `{{filesChanged}}` — the list of files Dev changed
 
-   - **UI Agent (Phase 2)** — reads Dev worktree
+   - **UI Agent (Phase 2)** — reads Dev worktree, `model: sonnet`
      - Load prompt from `SKILL_DIR/agents/ui-agent.md`
      - Fill in template variables, tell it to run **Phase 2 only** (validation)
+     - Include `{{filesChanged}}` — only validate these files, not the entire project
 
-   - **Security Agent** — reads Dev worktree
+   - **Security Agent** — reads Dev worktree, `model: sonnet`
      - Load prompt from `SKILL_DIR/agents/security-agent.md`
      - Fill in `{{feature}}`, `{{techStack}}`, `{{sliceDescription}}`, `{{securityFocus}}`, `{{currentRound}}`, `{{maxRounds}}`
+     - Include `{{filesChanged}}` — only audit these files, not the entire codebase
 
-   - **TPM Agent** — reads Dev worktree
+   - **TPM Agent** — reads Dev worktree, `model: haiku`
      - Load prompt from `SKILL_DIR/agents/tpm-agent.md`
      - Fill in `{{feature}}`, `{{techStack}}`, `{{sliceDescription}}`, `{{currentRound}}`, `{{maxRounds}}`
-     - **IMPORTANT:** TPM must validate that README.md exists, is complete, and that all commands in it actually work
+     - TPM only needs to read README.md and run the commands in it
 
 3. **As each agent completes**, record their vote and update kanban:
    ```bash
