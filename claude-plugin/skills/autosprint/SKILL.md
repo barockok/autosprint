@@ -6,23 +6,33 @@ description: Use when developing features that need multi-agent validation with 
 
 # AutoSprint — Multi-Agent Feature Development
 
+<HARD-GATE>
+You MUST follow this skill's workflow for EVERY task invoked through /autosprint. No exceptions.
+
+Do NOT:
+- Handle the task directly without dispatching agents
+- Skip the workflow because the task "seems simple"
+- Rationalize that "this doesn't need multi-agent review"
+
+If /autosprint was invoked, the full workflow runs. Period. The user chose this skill deliberately.
+
+If the task is genuinely wrong for AutoSprint (e.g., "what time is it?"), tell the user and suggest they run the task without /autosprint instead.
+</HARD-GATE>
+
 ## Overview
 
-AutoSprint dispatches 5 specialized agents in iterative rounds to build, test, validate, and document features with extreme confirmation. Each round follows the cycle: Dev implements, then QA + UI + Security + TPM review in parallel, then a consensus gate decides whether to fix or proceed.
-
-Core principle: No feature ships until Dev, QA, UI, Security, and TPM all approve through independent verification.
+AutoSprint dispatches 5 specialized agents in iterative rounds to build, test, validate, and document features with extreme confirmation. Each round: Dev implements → reviewers validate in parallel → consensus gate → fix or proceed.
 
 ## When to Use / When Not to Use
 
 **Use AutoSprint when:**
-- Building a new feature that needs comprehensive validation
-- The change touches UI components, security-sensitive code, or public documentation
-- You need parallel review from multiple disciplines before merging
+- Building a new feature, modifying existing features, or removing features
+- The change touches UI, security-sensitive code, or documentation
+- You want multi-agent review before merging
 
 **Do NOT use AutoSprint when:**
-- Fixing a quick, isolated bug
-- Pure refactoring with no behavioral change
-- Exploratory prototyping or spike work
+- Non-code tasks (questions, explanations, config lookups)
+- Tell the user: "This task doesn't need AutoSprint. Run it directly without /autosprint."
 
 ## Agents
 

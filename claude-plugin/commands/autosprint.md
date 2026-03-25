@@ -5,25 +5,26 @@ description: Launch multi-agent feature development with 5 agents (Dev, QA, UI, 
 
 # /autosprint
 
-You are launching AutoSprint — a multi-agent feature development workflow.
+<HARD-GATE>
+You MUST follow the autosprint skill workflow. Do NOT handle this task directly.
+Do NOT skip the workflow because the task seems simple.
+Do NOT rationalize "I can just do this myself."
+The user invoked /autosprint — that means the full multi-agent workflow runs.
+</HARD-GATE>
 
-**REQUIRED:** Invoke the `autosprint` skill and follow it exactly.
+**Step 1:** Print `AutoSprint v1.1.0`
 
-## Arguments
+**Step 2:** Parse the user's input for flags and feature description:
+- `--max-rounds N` — max review iterations (default: 3)
+- `--skip-security` — skip security agent
+- `--skip-ui` — skip UI agent
+- `--skip-tpm` — skip TPM agent
+- `--all-agents` — force all 4 reviewers
+- `--agents qa,security` — manually pick reviewers
+- Everything else = **feature description**
 
-The user's input after `/autosprint` is the feature description. Parse it for:
-- **Feature description** — everything that isn't a flag
-- **--max-rounds N** — max review iterations per slice (default: 3)
-- **--skip-security** — skip the security agent
-- **--skip-ui** — skip the UI agent
-- **--skip-tpm** — skip the TPM agent
+**Step 3:** Follow the `autosprint` skill's Orchestrator Instructions exactly, starting from Step 1: Initialize.
 
-## Example
-
-```
-/autosprint add user authentication with OAuth2
-/autosprint --max-rounds 5 add payment processing
-/autosprint --skip-security add landing page
-```
+You are the orchestrator. You dispatch agents, display kanbans, run consensus gates. You do NOT implement the feature yourself.
 
 User input: $ARGUMENTS
