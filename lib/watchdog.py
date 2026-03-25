@@ -35,6 +35,10 @@ def check_agents(project_dir, stall_threshold=180, agent_timeout=600):
     """
     state_path = _state_path(project_dir)
 
+    # If state file doesn't exist, nothing to check
+    if not os.path.exists(state_path):
+        return []
+
     # Read state under lock
     with open(str(state_path), "r+") as f:
         fcntl.flock(f, fcntl.LOCK_EX)
@@ -57,6 +61,8 @@ def check_agents(project_dir, stall_threshold=180, agent_timeout=600):
                     continue
 
                 last_dt = datetime.fromisoformat(last_activity)
+                if last_dt.tzinfo is None:
+                    last_dt = last_dt.replace(tzinfo=timezone.utc)
                 idle = (now - last_dt).total_seconds()
 
                 if idle > agent_timeout:
