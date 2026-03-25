@@ -1,0 +1,18 @@
+{
+  "feature": "",
+  "techStack": [],
+  "currentSlice": 1,
+  "totalSlices": 1,
+  "slices": [],
+  "currentRound": 1,
+  "maxRounds": 3,
+  "phase": "setup",
+  "agents": {
+    "dev":      { "status": "pending", "worktree": null, "lastActivity": null },
+    "qa":       { "status": "pending", "worktree": null, "lastActivity": null },
+    "ui":       { "status": "pending", "lastActivity": null },
+    "security": { "status": "pending", "lastActivity": null },
+    "tpm":      { "status": "pending", "lastActivity": null }
+  },
+  "consensus": {}
+}

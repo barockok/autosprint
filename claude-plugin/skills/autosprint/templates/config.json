@@ -1,0 +1,11 @@
+{
+  "feature": "",
+  "techStack": [],
+  "maxRounds": 3,
+  "slices": [],
+  "stallThreshold": 180,
+  "agentTimeout": 600,
+  "skipSecurity": false,
+  "skipUi": false,
+  "skipTpm": false
+}

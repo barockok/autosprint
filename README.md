@@ -12,9 +12,34 @@ Multi-agent feature development skill for Claude Code. Dispatches 5 specialized 
 
 ### Step 1: Install AutoSprint
 
-AutoSprint works standalone with **zero plugin dependencies**. Just install and use `/autosprint`.
+AutoSprint works standalone with **zero plugin dependencies**. Choose your install method:
 
-**Option A — Quick install (curl):**
+**Option A — Native Claude Code plugin (recommended):**
+
+Run `/plugins` in Claude Code, add the autosprint marketplace, and enable the plugin:
+
+```
+/plugins
+```
+
+Add marketplace URL: `https://github.com/barockok/autosprint`
+
+Or add it directly to your `~/.claude/settings.json`:
+
+```json
+{
+  "pluginMarketplaces": [
+    "https://github.com/barockok/autosprint"
+  ],
+  "enabledPlugins": {
+    "autosprint@autosprint": true
+  }
+}
+```
+
+Restart Claude Code and `/autosprint` is ready to use.
+
+**Option B — Quick install (curl):**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/barockok/autosprint/main/install.sh | bash
@@ -22,14 +47,14 @@ curl -fsSL https://raw.githubusercontent.com/barockok/autosprint/main/install.sh
 
 This copies the skill to `~/.claude/skills/autosprint/` — available in all your projects.
 
-**Option B — From source:**
+**Option C — From source:**
 
 ```bash
 git clone https://github.com/barockok/autosprint.git
 cd autosprint && bash install.sh
 ```
 
-**Option C — Project-level (for teams):**
+**Option D — Project-level (for teams):**
 
 ```bash
 # From within your project directory
@@ -41,21 +66,15 @@ git commit -m "Add autosprint skill"
 
 This installs to `.claude/skills/autosprint/` in your project — your team gets it via git.
 
-### Step 3: Verify installation
+### Step 2: Verify installation
 
 Open Claude Code in any project and run:
-
-```
-/autosprint --help
-```
-
-Or simply start using it:
 
 ```
 /autosprint add user authentication
 ```
 
-### Step 3 (Optional): Install plugins for enhanced experience
+### Step 3 (Optional): Add plugins for enhanced experience
 
 AutoSprint works great on its own, but these optional plugins unlock the full workflow:
 
