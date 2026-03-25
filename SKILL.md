@@ -46,6 +46,10 @@ Core principle: No feature ships until Dev, QA, UI, Security, and TPM all approv
 | `--skip-security` | false   | Skip the Security agent                    |
 | `--skip-ui`       | false   | Skip the UI agent                          |
 | `--skip-tpm`      | false   | Skip the TPM agent                         |
+| `--all-agents`    | false   | Force all 4 reviewers regardless of auto-selection |
+| `--agents`        | auto    | Manually pick reviewers: `--agents qa,security` |
+
+**Default behavior:** Reviewers are auto-selected based on what files Dev changes (see Step 3.5). Use `--all-agents` to force all 4, or `--agents qa,ui` to pick manually.
 
 ## Orchestrator Instructions
 
@@ -164,50 +168,80 @@ For each slice:
    ```
    **Output the markdown table to the user.**
 
+### Step 3.5: Agent Selection
+
+After Dev completes, **automatically select which reviewers are needed** based on what files changed. Do NOT always dispatch all 4 reviewers.
+
+1. **Run agent selection:**
+   ```bash
+   python3 -c "
+   import sys, json; sys.path.insert(0, 'SKILL_DIR')
+   from lib.agent_selector import select_agents, render_selection
+   files = FILES_CHANGED_JSON_ARRAY
+   result = select_agents(files, 'FEATURE_DESCRIPTION')
+   print(render_selection(result))
+   print()
+   print('JSON:', json.dumps(result))
+   "
+   ```
+   Replace `FILES_CHANGED_JSON_ARRAY` with the list from Dev's report (e.g., `["src/App.tsx", "src/styles.css"]`).
+
+   **Output the agent selection table to the user.**
+
+2. **The pair principle:** Dev + at least 1 reviewer. Always. The selector enforces this — if no reviewer matches, QA is the default.
+
+3. **User can override:** If the user explicitly asked for `--skip-*` flags or `--all-agents`, respect that over the auto-selection.
+
+4. **Selection logic:**
+
+   | Changed Files | Reviewers Selected |
+   |---|---|
+   | CSS/styles/components only | UI (+ QA if code logic changed) |
+   | Backend/API/logic only | QA |
+   | Auth/payment/secrets/.env | QA + Security |
+   | UI + auth files | QA + UI + Security |
+   | README/docs/config changed | TPM |
+   | 10+ files changed | TPM (large change, docs likely need update) |
+   | New project / first feature | All 4 |
+
 ### Step 4: Parallel Review
 
-1. **Display kanban showing reviewers starting:**
+1. **Display kanban showing selected reviewers starting** (only set status for selected agents):
    ```bash
    python3 -c "
    import sys; sys.path.insert(0, 'SKILL_DIR')
    from lib.state_manager import update_agent_status, render_kanban
-   update_agent_status('PROJECT_DIR', 'qa', 'running')
-   update_agent_status('PROJECT_DIR', 'ui', 'running')
-   update_agent_status('PROJECT_DIR', 'security', 'running')
-   update_agent_status('PROJECT_DIR', 'tpm', 'running')
+   # Only update status for SELECTED reviewers:
+   for agent in SELECTED_REVIEWERS:
+       update_agent_status('PROJECT_DIR', agent, 'running')
    print(render_kanban('PROJECT_DIR'))
    "
    ```
    **Output the markdown table to the user.**
 
-2. **Dispatch ALL active reviewers IN PARALLEL** using multiple Agent tool calls in one message (respect `--skip-*` flags):
+2. **Dispatch ONLY the selected reviewers IN PARALLEL** using multiple Agent tool calls in one message:
 
-   **CRITICAL — Token Optimization:** To keep review agents fast and cheap, you MUST:
-   - Pass only the **list of files changed by Dev** (from Dev's report), not the entire codebase
-   - Tell each reviewer to **ONLY read the files Dev changed** — do not explore the rest of the project
-   - Use `model: haiku` for TPM agent (lightweight doc validation)
-   - Use `model: sonnet` for Security and UI agents (medium complexity)
-   - Use `model: opus` for QA agent only (needs to write and run tests)
+   **Token optimization rules:**
+   - Pass only `{{filesChanged}}` from Dev's report — reviewers ONLY read those files
+   - Use `model: haiku` for TPM (lightweight doc validation)
+   - Use `model: sonnet` for Security and UI (medium complexity)
+   - Use `model: opus` for QA only (needs to write and run tests)
 
-   - **QA Agent** — `isolation: worktree`, `model: opus`
-     - Load prompt from `SKILL_DIR/agents/qa-agent.md`
-     - Fill in `{{feature}}`, `{{techStack}}`, `{{sliceDescription}}`, `{{qaTool}}`, `{{currentRound}}`, `{{maxRounds}}`
-     - Include `{{filesChanged}}` — the list of files Dev changed
+   **If QA was selected** — `isolation: worktree`, `model: opus`
+   - Load prompt from `SKILL_DIR/agents/qa-agent.md`
+   - Fill in `{{feature}}`, `{{techStack}}`, `{{sliceDescription}}`, `{{qaTool}}`, `{{currentRound}}`, `{{maxRounds}}`, `{{filesChanged}}`
 
-   - **UI Agent (Phase 2)** — reads Dev worktree, `model: sonnet`
-     - Load prompt from `SKILL_DIR/agents/ui-agent.md`
-     - Fill in template variables, tell it to run **Phase 2 only** (validation)
-     - Include `{{filesChanged}}` — only validate these files, not the entire project
+   **If UI was selected** — reads Dev worktree, `model: sonnet`
+   - Load prompt from `SKILL_DIR/agents/ui-agent.md`
+   - Phase 2 only (validation). Include `{{filesChanged}}`
 
-   - **Security Agent** — reads Dev worktree, `model: sonnet`
-     - Load prompt from `SKILL_DIR/agents/security-agent.md`
-     - Fill in `{{feature}}`, `{{techStack}}`, `{{sliceDescription}}`, `{{securityFocus}}`, `{{currentRound}}`, `{{maxRounds}}`
-     - Include `{{filesChanged}}` — only audit these files, not the entire codebase
+   **If Security was selected** — reads Dev worktree, `model: sonnet`
+   - Load prompt from `SKILL_DIR/agents/security-agent.md`
+   - Fill in all template vars. Include `{{filesChanged}}`
 
-   - **TPM Agent** — reads Dev worktree, `model: haiku`
-     - Load prompt from `SKILL_DIR/agents/tpm-agent.md`
-     - Fill in `{{feature}}`, `{{techStack}}`, `{{sliceDescription}}`, `{{currentRound}}`, `{{maxRounds}}`
-     - TPM only needs to read README.md and run the commands in it
+   **If TPM was selected** — reads Dev worktree, `model: haiku`
+   - Load prompt from `SKILL_DIR/agents/tpm-agent.md`
+   - Only reads README.md and runs commands in it
 
 3. **As each agent completes**, record their vote and update kanban:
    ```bash
