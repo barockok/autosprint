@@ -11,6 +11,8 @@ from lib import state_manager
 from lib.state_manager import (
     AGENTS,
     REVIEWERS,
+    VALID_VOTES,
+    _locked_update,
     check_consensus,
     get_state,
     init_sprint,
@@ -83,14 +85,14 @@ class TestInitSprint:
 class TestUpdateAgentStatus:
     def test_updates_status_and_last_activity(self, initialized_project):
         before = datetime.now(timezone.utc)
-        update_agent_status(initialized_project, "dev", "in_progress")
+        update_agent_status(initialized_project, "dev", "running")
         state = get_state(initialized_project)
-        assert state["agents"]["dev"]["status"] == "in_progress"
+        assert state["agents"]["dev"]["status"] == "running"
         ts = datetime.fromisoformat(state["agents"]["dev"]["lastActivity"])
         assert ts >= before
 
     def test_updates_phase(self, initialized_project):
-        update_agent_status(initialized_project, "dev", "in_progress", phase="development")
+        update_agent_status(initialized_project, "dev", "running", phase="development")
         state = get_state(initialized_project)
         assert state["phase"] == "development"
 
@@ -150,8 +152,8 @@ class TestConsensus:
 
 class TestKanbanRendering:
     def test_render_kanban_markdown(self, initialized_project):
-        update_agent_status(initialized_project, "dev", "in_progress")
-        update_agent_status(initialized_project, "qa", "done")
+        update_agent_status(initialized_project, "dev", "running")
+        update_agent_status(initialized_project, "qa", "completed")
         output = render_kanban(initialized_project, fmt="markdown")
         assert "## Sprint: dark mode" in output
         assert "Slice 1/2 | Round 1/3" in output
@@ -182,8 +184,49 @@ class TestKanbanRendering:
         assert "|" in output
 
     def test_render_kanban_json(self, initialized_project):
-        update_agent_status(initialized_project, "dev", "in_progress")
+        update_agent_status(initialized_project, "dev", "running")
         result = render_kanban(initialized_project, fmt="json")
         assert isinstance(result, dict)
         assert "feature" in result
         assert "agents" in result
+
+
+class TestInputValidation:
+    def test_update_agent_status_invalid_agent(self, initialized_project):
+        with pytest.raises(ValueError, match="Unknown agent: hacker"):
+            update_agent_status(initialized_project, "hacker", "running")
+
+    def test_record_vote_invalid_agent(self, initialized_project):
+        with pytest.raises(ValueError, match="Unknown agent: hacker"):
+            record_vote(initialized_project, 1, "hacker", "PASS", "ok")
+
+    def test_record_vote_invalid_vote(self, initialized_project):
+        with pytest.raises(ValueError, match="Invalid vote: MAYBE"):
+            record_vote(initialized_project, 1, "qa", "MAYBE", "ok")
+
+    def test_get_state_missing_file(self, project):
+        with pytest.raises(FileNotFoundError, match="state.json not found"):
+            get_state(project)
+
+
+class TestFileLocking:
+    def test_locked_update_smoke(self, initialized_project):
+        """Basic smoke test: _locked_update reads, mutates, and writes back correctly."""
+        def _set_phase(data):
+            data["phase"] = "review"
+
+        _locked_update(initialized_project, _set_phase)
+        state = get_state(initialized_project)
+        assert state["phase"] == "review"
+
+    def test_locked_update_preserves_data(self, initialized_project):
+        """Ensure _locked_update does not lose existing data."""
+        update_agent_status(initialized_project, "dev", "running")
+
+        def _set_phase(data):
+            data["phase"] = "consensus"
+
+        _locked_update(initialized_project, _set_phase)
+        state = get_state(initialized_project)
+        assert state["phase"] == "consensus"
+        assert state["agents"]["dev"]["status"] == "running"

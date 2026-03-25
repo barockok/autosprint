@@ -1,5 +1,6 @@
 """State Manager — manages .sprint/ directory lifecycle, agent status, consensus, and kanban rendering."""
 
+import fcntl
 import json
 import os
 import sys
@@ -7,6 +8,7 @@ from datetime import datetime, timezone
 
 AGENTS = ["dev", "qa", "ui", "security", "tpm"]
 REVIEWERS = ["qa", "ui", "security", "tpm"]
+VALID_VOTES = {"PASS", "FAIL", "OVERRIDE"}
 
 AGENT_DISPLAY = {
     "dev": "Dev",
@@ -37,6 +39,21 @@ def _read_json(path):
 def _write_json(path, data):
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
+
+
+def _locked_update(project_dir, mutator_fn):
+    """Read state.json, apply mutator_fn, write back — all under exclusive file lock."""
+    path = _state_path(project_dir)
+    with open(str(path), "r+") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            data = json.load(f)
+            mutator_fn(data)
+            f.seek(0)
+            f.truncate()
+            json.dump(data, f, indent=2)
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
 
 
 def init_sprint(project_dir, feature, tech_stack, max_rounds=3, slices=None):
@@ -85,7 +102,7 @@ def init_sprint(project_dir, feature, tech_stack, max_rounds=3, slices=None):
     if os.path.isfile(gitignore_path):
         with open(gitignore_path) as f:
             content = f.read()
-        if entry not in content:
+        if entry not in content.splitlines():
             with open(gitignore_path, "a") as f:
                 if not content.endswith("\n"):
                     f.write("\n")
@@ -97,32 +114,46 @@ def init_sprint(project_dir, feature, tech_stack, max_rounds=3, slices=None):
 
 def get_state(project_dir):
     """Read and return state.json as dict."""
-    return _read_json(_state_path(project_dir))
+    path = _state_path(project_dir)
+    if not os.path.isfile(path):
+        raise FileNotFoundError(
+            f"state.json not found at {path}. Run init_sprint() first."
+        )
+    return _read_json(path)
 
 
 def update_agent_status(project_dir, agent, status, phase=None):
     """Update agent status and lastActivity timestamp."""
-    state = get_state(project_dir)
-    state["agents"][agent]["status"] = status
-    state["agents"][agent]["lastActivity"] = datetime.now(timezone.utc).isoformat()
-    if phase is not None:
-        state["phase"] = phase
-    _write_json(_state_path(project_dir), state)
+    if agent not in AGENTS:
+        raise ValueError(f"Unknown agent: {agent}")
+
+    def _mutate(data):
+        data["agents"][agent]["status"] = status
+        data["agents"][agent]["lastActivity"] = datetime.now(timezone.utc).isoformat()
+        if phase is not None:
+            data["phase"] = phase
+
+    _locked_update(project_dir, _mutate)
 
 
 def record_vote(project_dir, round_num, agent, vote, summary):
     """Record a vote in state.json and write a report file."""
-    state = get_state(project_dir)
+    if agent not in AGENTS:
+        raise ValueError(f"Unknown agent: {agent}")
+    if vote not in VALID_VOTES:
+        raise ValueError(f"Invalid vote: {vote}")
+
     round_key = f"round-{round_num}"
 
-    if round_key not in state["consensus"]:
-        state["consensus"][round_key] = {}
+    def _mutate(data):
+        if round_key not in data["consensus"]:
+            data["consensus"][round_key] = {}
+        data["consensus"][round_key][agent] = {
+            "vote": vote,
+            "summary": summary,
+        }
 
-    state["consensus"][round_key][agent] = {
-        "vote": vote,
-        "summary": summary,
-    }
-    _write_json(_state_path(project_dir), state)
+    _locked_update(project_dir, _mutate)
 
     # Write report file
     round_dir = os.path.join(_sprint_dir(project_dir), "rounds", round_key)
@@ -182,26 +213,26 @@ def render_kanban(project_dir, fmt="markdown"):
         f" | Round {state['currentRound']}/{state['maxRounds']}**"
     )
     lines.append("")
-    lines.append("| Agent | Pending | In Progress | Done | Verdict |")
+    lines.append("| Agent | Pending | Running | Completed | Verdict |")
     lines.append("| --- | --- | --- | --- | --- |")
 
-    counts = {"pending": 0, "in_progress": 0, "done": 0}
+    counts = {"pending": 0, "running": 0, "completed": 0}
     for agent in AGENTS:
         info = state["agents"][agent]
         status = info["status"]
         display = AGENT_DISPLAY[agent]
         pending = "x" if status == "pending" else ""
-        in_progress = "x" if status == "in_progress" else ""
-        done = "x" if status == "done" else ""
+        running = "x" if status == "running" else ""
+        completed = "x" if status == "completed" else ""
         verdict = ""
         # Count
         if status in counts:
             counts[status] += 1
-        lines.append(f"| {display} | {pending} | {in_progress} | {done} | {verdict} |")
+        lines.append(f"| {display} | {pending} | {running} | {completed} | {verdict} |")
 
     lines.append("")
     total = len(AGENTS)
-    done_count = counts["done"]
+    done_count = counts["completed"]
     lines.append(f"Progress: {done_count}/{total} agents complete")
 
     return "\n".join(lines)
@@ -261,7 +292,7 @@ def render_overview(project_dir):
         # Count active agents for current slice
         if i == state["currentSlice"]:
             active = sum(
-                1 for a in AGENTS if state["agents"][a]["status"] == "in_progress"
+                1 for a in AGENTS if state["agents"][a]["status"] == "running"
             )
             agents_str = f"{active}/{len(AGENTS)}"
         else:
