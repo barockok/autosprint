@@ -111,6 +111,21 @@ Markdown tables displayed at key moments showing agent status, consensus votes, 
 
 See [docs/architecture.md](docs/architecture.md) for technical details.
 
+## Inspiration & Credits
+
+AutoSprint builds on the **autonomous iteration** concept pioneered by [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) -- the idea that an agent can autonomously modify, verify, keep or discard, and repeat until a goal is met.
+
+[Udit Goenka's autoresearch Claude skill](https://github.com/uditgoenka/autoresearch) brought that concept into Claude Code as a reusable skill, proving the loop works for any task with a measurable metric.
+
+AutoSprint extends this foundation with **multi-agent personas for feature development**:
+
+- Instead of one agent iterating alone, **5 specialized agents** (Dev, QA, UI, Security, TPM) work in parallel -- each with a different concern and verification method.
+- Instead of a single metric, a **consensus gate** requires independent approval from all reviewers before proceeding.
+- Instead of generic verification, agents perform **real E2E testing**, **structural UI validation**, **OWASP security audits**, and **documentation verification** against the actual running application.
+- A **robustness layer** (state persistence, watchdog, crash recovery) keeps the autonomous loop running reliably across long sessions.
+
+The core insight from autoresearch -- autonomous goal-directed iteration with verification -- remains the beating heart. AutoSprint puts it on steroids with specialized agents who each bring a different lens to the same work.
+
 ## License
 
 MIT
