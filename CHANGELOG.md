@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1] - 2026-03-25
+
+### Fixed
+- **Hard gate to prevent skill bypass** — Claude was skipping the workflow for "simple" tasks. Added `<HARD-GATE>` to SKILL.md and command file that explicitly forbids handling tasks directly when `/autosprint` is invoked.
+- Removing features is now a valid use case in "When to Use" section.
+
 ## [1.1.0] - 2026-03-25
 
 ### Added

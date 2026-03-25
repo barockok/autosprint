@@ -12,7 +12,7 @@ Do NOT rationalize "I can just do this myself."
 The user invoked /autosprint — that means the full multi-agent workflow runs.
 </HARD-GATE>
 
-**Step 1:** Print `AutoSprint v1.1.0`
+**Step 1:** Print `AutoSprint v1.1.1`
 
 **Step 2:** Parse the user's input for flags and feature description:
 - `--max-rounds N` — max review iterations (default: 3)
