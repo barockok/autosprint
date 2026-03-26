@@ -273,7 +273,7 @@ After Dev completes, **automatically select which reviewers are needed** based o
    print(render_kanban('PROJECT_DIR'))
    "
    ```
-   **TOKEN_COUNT** = the `total_tokens` value from the Agent tool result (visible in the agent's response metadata). Record it for every agent including Dev.
+   **How to get TOKEN_COUNT:** When an Agent tool call returns, the result contains a `<usage>total_tokens: N</usage>` tag at the bottom. Extract the number `N` and use it as TOKEN_COUNT. For example, if the agent result ends with `<usage>total_tokens: 23117</usage>`, then TOKEN_COUNT = 23117. If you cannot find the usage tag, estimate based on the agent result length or use 0.
    **Output the markdown table to the user after EACH agent completes.**
 
 ### Step 5: Consensus Gate
@@ -295,7 +295,17 @@ After Dev completes, **automatically select which reviewers are needed** based o
    ```
    **Output the consensus table AND decision to the user.**
 
-3. **Act on the decision:**
+3. **Display token usage for this round:**
+   ```bash
+   python3 -c "
+   import sys; sys.path.insert(0, 'SKILL_DIR')
+   from lib.state_manager import render_token_summary
+   print(render_token_summary('PROJECT_DIR'))
+   "
+   ```
+   **Output the token summary to the user.** This shows running totals across all rounds so far.
+
+4. **Act on the decision:**
 
    - **APPROVED** — Merge QA tests into the Dev branch. Advance to next slice (back to Step 3) or completion (Step 6).
 
@@ -303,7 +313,7 @@ After Dev completes, **automatically select which reviewers are needed** based o
 
    - **PENDING** — Wait and re-check. Run watchdog to detect stalls.
 
-4. **Max rounds reached** — If `currentRound >= maxRounds` and still REJECTED, dispatch TPM to compile a final status report. Present the report to the user and ask: "Force-proceed or abort?"
+5. **Max rounds reached** — If `currentRound >= maxRounds` and still REJECTED, dispatch TPM to compile a final status report. Present the report to the user and ask: "Force-proceed or abort?"
 
 ### Step 6: Completion
 
