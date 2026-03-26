@@ -1,6 +1,6 @@
 ---
 name: autosprint
-version: 1.1.1
+version: 1.1.2
 description: Use when developing features that need multi-agent validation with parallel review — dispatches Dev, QA, UI, Security, and TPM agents in iterative consensus rounds with real E2E testing, structural UI validation, security audit, and documentation verification
 ---
 
@@ -71,7 +71,7 @@ AutoSprint dispatches 5 specialized agents in iterative rounds to build, test, v
 **Print the skill version to the user:**
 
 ```
-AutoSprint v1.1.1
+AutoSprint v1.1.2
 ```
 
 ### Resolving Paths

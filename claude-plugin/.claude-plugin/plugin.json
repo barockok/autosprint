@@ -1,7 +1,7 @@
 {
   "name": "autosprint",
   "description": "Multi-agent feature development skill for Claude Code. Dispatches Dev, QA, UI, Security, and TPM agents in iterative consensus rounds with real E2E testing, structural UI validation, security audit, and documentation verification.",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": {
     "name": "barockok",
     "url": "https://github.com/barockok"

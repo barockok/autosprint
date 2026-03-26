@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "autosprint",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "AutoSprint — multi-agent feature development skill for Claude Code. Dispatches 5 specialized agents (Dev, QA, UI, Security, TPM) in iterative consensus rounds. Inspired by Karpathy's autoresearch, extended with multi-agent personas.",
   "owner": {
     "name": "barockok",
@@ -11,7 +11,7 @@
     {
       "name": "autosprint",
       "description": "Multi-agent feature development with 5 specialized agents (Dev, QA, UI, Security, TPM). Runs iterative rounds with consensus gating, real E2E testing, structural UI validation, security audit, and documentation verification. Use /autosprint to start.",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "author": {
         "name": "barockok",
         "url": "https://github.com/barockok"

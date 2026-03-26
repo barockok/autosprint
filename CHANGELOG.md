@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.2] - 2026-03-26
+
+### Fixed
+- **Token summary now displays at end of each round** — previously only shown at final completion.
+- **Explicit token extraction instructions** — orchestrator now knows to look for `<usage>total_tokens: N</usage>` in Agent tool responses.
+
 ## [1.1.1] - 2026-03-25
 
 ### Fixed
